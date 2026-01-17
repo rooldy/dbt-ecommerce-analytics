@@ -1,0 +1,38 @@
+# Configuration DBT pour Snowflake
+# 
+# Instructions :
+# 1. Copier ce fichier vers ~/.dbt/profiles.yml
+# 2. Remplacer les valeurs entre <> par vos vraies informations
+# 3. Ne JAMAIS commiter le fichier profiles.yml
+
+dbt_ecommerce:
+  target: dev
+  outputs:
+    
+    # Environnement de développement
+    dev:
+      type: snowflake
+      account: <ACCOUNT_IDENTIFIER>  # Ex: abc12345.eu-west-1
+      user: <SNOWFLAKE_USERNAME>     # Votre email ou username
+      password: <SNOWFLAKE_PASSWORD> # Votre mot de passe
+      role: DBT_ROLE
+      database: DBT_ECOMMERCE
+      warehouse: DBT_WH
+      schema: STAGING
+      threads: 4
+      client_session_keep_alive: False
+      query_tag: dbt_dev
+      
+    # Environnement de production
+    prod:
+      type: snowflake
+      account: <ACCOUNT_IDENTIFIER>
+      user: <SNOWFLAKE_USERNAME>
+      password: <SNOWFLAKE_PASSWORD>
+      role: DBT_ROLE
+      database: DBT_ECOMMERCE
+      warehouse: DBT_WH
+      schema: MARTS_ANALYTICS
+      threads: 8
+      client_session_keep_alive: False
+      query_tag: dbt_prod

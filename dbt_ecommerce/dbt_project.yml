@@ -1,0 +1,59 @@
+name: 'dbt_ecommerce'
+version: '1.0.0'
+config-version: 2
+
+# Profile à utiliser (doit matcher profiles.yml)
+profile: 'dbt_ecommerce'
+
+# Chemins des dossiers
+model-paths: ["models"]
+analysis-paths: ["analyses"]
+test-paths: ["tests"]
+seed-paths: ["seeds"]
+macro-paths: ["macros"]
+snapshot-paths: ["snapshots"]
+
+target-path: "target"
+clean-targets:
+  - "target"
+  - "dbt_packages"
+
+# Configuration des modèles
+models:
+  dbt_ecommerce:
+    # Staging : views dans schema STAGING
+    staging:
+      +materialized: view
+      +schema: staging
+      
+    # Intermediate : views dans schema INTERMEDIATE
+    intermediate:
+      +materialized: view
+      +schema: intermediate
+      
+    # Marts : tables dans schemas dédiés
+    marts:
+      core:
+        +materialized: table
+        +schema: marts_core
+      analytics:
+        +materialized: table
+        +schema: marts_analytics
+
+# Configuration des snapshots
+snapshots:
+  dbt_ecommerce:
+    +target_schema: snapshots
+    +unique_key: id
+    +strategy: timestamp
+    +updated_at: updated_at
+
+# Variables globales (à utiliser dans les modèles)
+vars:
+  # Dates de référence
+  start_date: '2016-09-04'
+  end_date: '2018-10-17'
+  
+  # Seuils métier
+  vip_customer_threshold: 1000  # Montant pour être VIP
+  regular_customer_min_orders: 3

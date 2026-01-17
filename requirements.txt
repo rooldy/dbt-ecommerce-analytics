@@ -1,0 +1,32 @@
+# DBT Core et adaptateur Snowflake
+dbt-core==1.8.0
+dbt-snowflake==1.8.0
+
+# Snowflake connector
+snowflake-connector-python==3.6.0
+snowflake-sqlalchemy==1.5.1
+
+# Data processing
+pandas==2.1.4
+numpy==1.26.2
+
+# Utilities
+python-dotenv==1.0.0
+pyyaml==6.0.1
+
+# Data quality
+great-expectations==0.18.8
+
+# Visualization
+plotly==5.18.0
+matplotlib==3.8.2
+
+# Development
+ipython==8.18.1
+jupyter==1.0.0
+
+# Testing
+pytest==7.4.3
+
+# Progress bars
+tqdm==4.66.1
