@@ -1,0 +1,263 @@
+version: 2
+
+models:
+  - name: fct_orders
+    description: "Fact table containing one row per order with all order-level metrics"
+    config:
+      tags: ['marts', 'core', 'facts']
+    columns:
+      - name: order_key
+        description: "Surrogate key for the order"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Natural key - original order ID"
+        tests:
+          - unique
+          - not_null
+      - name: customer_key
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+      - name: order_date_key
+        description: "Foreign key to dim_date (YYYYMMDD format)"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_date')
+              field: date_key
+      - name: order_status
+        description: "Current status of the order"
+        tests:
+          - not_null
+      - name: total_payment_value
+        description: "Total payment amount for the order"
+        tests:
+          - not_null
+      - name: items_count
+        description: "Number of items in the order"
+        tests:
+          - not_null
+      - name: is_delivered
+        description: "Flag indicating if order was delivered"
+        tests:
+          - not_null
+      - name: is_canceled
+        description: "Flag indicating if order was canceled"
+        tests:
+          - not_null
+
+  - name: fct_order_items
+    description: "Fact table containing one row per item in each order"
+    config:
+      tags: ['marts', 'core', 'facts']
+    columns:
+      - name: order_item_key
+        description: "Surrogate key for the order item"
+        tests:
+          - unique
+          - not_null
+      - name: order_id
+        description: "Natural key - order ID"
+        tests:
+          - not_null
+      - name: order_item_id
+        description: "Item sequence number within order"
+        tests:
+          - not_null
+      - name: order_key
+        description: "Foreign key to fct_orders"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('fct_orders')
+              field: order_key
+      - name: customer_key
+        description: "Foreign key to dim_customers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_customers')
+              field: customer_key
+      - name: product_key
+        description: "Foreign key to dim_products"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_products')
+              field: product_key
+      - name: seller_key
+        description: "Foreign key to dim_sellers"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('dim_sellers')
+              field: seller_key
+      - name: item_price
+        description: "Price of the item"
+        tests:
+          - not_null
+      - name: item_freight_value
+        description: "Freight cost for the item"
+        tests:
+          - not_null
+      - name: item_total_value
+        description: "Total value (price + freight)"
+        tests:
+          - not_null
+
+  - name: dim_customers
+    description: "Customer dimension with RFM segmentation and lifetime metrics"
+    config:
+      tags: ['marts', 'core', 'dimensions']
+    columns:
+      - name: customer_key
+        description: "Surrogate key for customer"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Natural key - original customer ID"
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: "Unique identifier across all orders"
+        tests:
+          - not_null
+      - name: customer_city
+        description: "Customer's city"
+        tests:
+          - not_null
+      - name: customer_state
+        description: "Customer's state"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total number of orders placed"
+        tests:
+          - not_null
+      - name: lifetime_value
+        description: "Total amount spent by customer"
+        tests:
+          - not_null
+      - name: customer_tier
+        description: "Customer tier: VIP, Gold, Silver, Bronze"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['VIP', 'Gold', 'Silver', 'Bronze']
+      - name: customer_status
+        description: "Customer status based on recency"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active', 'At Risk', 'Dormant', 'Lost']
+
+  - name: dim_products
+    description: "Product dimension with categories and physical attributes"
+    config:
+      tags: ['marts', 'core', 'dimensions']
+    columns:
+      - name: product_key
+        description: "Surrogate key for product"
+        tests:
+          - unique
+          - not_null
+      - name: product_id
+        description: "Natural key - original product ID"
+        tests:
+          - unique
+          - not_null
+      - name: category_name_en
+        description: "Product category in English"
+      - name: weight_g
+        description: "Product weight in grams"
+      - name: volume_cm3
+        description: "Product volume in cubic centimeters"
+      - name: weight_category
+        description: "Weight classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Light', 'Medium', 'Heavy']
+      - name: volume_category
+        description: "Volume classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Small', 'Medium', 'Large']
+
+  - name: dim_sellers
+    description: "Seller dimension with location and regional classification"
+    config:
+      tags: ['marts', 'core', 'dimensions']
+    columns:
+      - name: seller_key
+        description: "Surrogate key for seller"
+        tests:
+          - unique
+          - not_null
+      - name: seller_id
+        description: "Natural key - original seller ID"
+        tests:
+          - unique
+          - not_null
+      - name: seller_city
+        description: "Seller's city"
+        tests:
+          - not_null
+      - name: seller_state
+        description: "Seller's state"
+        tests:
+          - not_null
+      - name: region
+        description: "Brazilian region"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Southeast', 'South', 'Central-West', 'Northeast', 'North', 'Unknown']
+
+  - name: dim_date
+    description: "Date dimension covering 2016-2018 with calendar attributes and Brazilian holidays"
+    config:
+      tags: ['marts', 'core', 'dimensions']
+    columns:
+      - name: date_key
+        description: "Surrogate key (YYYYMMDD format)"
+        tests:
+          - unique
+          - not_null
+      - name: full_date
+        description: "Full date value"
+        tests:
+          - unique
+          - not_null
+      - name: year
+        description: "Year (2016-2018)"
+        tests:
+          - not_null
+      - name: quarter
+        description: "Quarter (1-4)"
+        tests:
+          - not_null
+      - name: month
+        description: "Month (1-12)"
+        tests:
+          - not_null
+      - name: day_of_week
+        description: "Day of week (0=Sunday)"
+        tests:
+          - not_null
+      - name: is_weekend
+        description: "Flag: 1 if Saturday or Sunday"
+        tests:
+          - not_null
+      - name: is_holiday
+        description: "Flag: 1 if Brazilian public holiday"
+        tests:
+          - not_null
