@@ -4,14 +4,22 @@ with source as (
 
 renamed as (
     select
-        ORDER_ID as order_id,
-        CUSTOMER_ID as customer_id,
-        ORDER_STATUS as order_status,
-        ORDER_PURCHASE_TIMESTAMP::timestamp as order_date,
-        ORDER_APPROVED_AT::timestamp as approved_date,
-        ORDER_DELIVERED_CARRIER_DATE::timestamp as carrier_date,
-        ORDER_DELIVERED_CUSTOMER_DATE::timestamp as delivered_date,
-        ORDER_ESTIMATED_DELIVERY_DATE::timestamp as estimated_delivery_date
+        -- Primary key
+        order_id,
+        
+        -- Foreign key
+        customer_id,
+        
+        -- Order attributes
+        order_status,
+        
+        -- Timestamps - convert VARCHAR to TIMESTAMP
+        try_to_timestamp(order_purchase_timestamp) as order_purchase_timestamp,
+        try_to_timestamp(order_approved_at) as order_approved_at,
+        try_to_timestamp(order_delivered_carrier_date) as order_delivered_carrier_date,
+        try_to_timestamp(order_delivered_customer_date) as order_delivered_customer_date,
+        try_to_timestamp(order_estimated_delivery_date) as order_estimated_delivery_date
+        
     from source
 )
 
