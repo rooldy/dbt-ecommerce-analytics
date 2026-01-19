@@ -1,0 +1,246 @@
+version: 2
+
+models:
+  - name: int_orders_enriched
+    description: "Enriched orders with customer and payment information, plus calculated delivery metrics"
+    config:
+      tags: ['intermediate', 'orders']
+    columns:
+      - name: order_id
+        description: "Unique order identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_id
+        description: "Customer identifier for this order"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_customers')
+              field: customer_id
+      - name: customer_unique_id
+        description: "Unique customer identifier across all orders"
+        tests:
+          - not_null
+      - name: customer_city
+        description: "Customer's city"
+        tests:
+          - not_null
+      - name: customer_state
+        description: "Customer's state (2-letter code)"
+        tests:
+          - not_null
+      - name: customer_zip_code
+        description: "Customer's zip code (first 5 digits)"
+        tests:
+          - not_null
+      - name: order_status
+        description: "Current order status"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['delivered', 'shipped', 'canceled', 'unavailable', 'invoiced', 'processing', 'created', 'approved']
+      - name: order_purchase_timestamp
+        description: "When the order was purchased"
+        tests:
+          - not_null
+      - name: total_payment_value
+        description: "Total amount paid for the order"
+        tests:
+          - not_null
+      - name: payment_methods_count
+        description: "Number of payment methods used"
+        tests:
+          - not_null
+      - name: max_installments
+        description: "Maximum number of installments"
+        tests:
+          - not_null
+      - name: is_delivered
+        description: "Flag: 1 if order status is delivered"
+        tests:
+          - not_null
+      - name: is_canceled
+        description: "Flag: 1 if order status is canceled"
+        tests:
+          - not_null
+      - name: order_year
+        description: "Year of order purchase"
+        tests:
+          - not_null
+      - name: order_month
+        description: "Month of order purchase (1-12)"
+        tests:
+          - not_null
+      - name: order_quarter
+        description: "Quarter of order purchase (1-4)"
+        tests:
+          - not_null
+
+  - name: int_order_items_enriched
+    description: "Enriched order items with product and seller information"
+    config:
+      tags: ['intermediate', 'order_items']
+    columns:
+      - name: order_id
+        description: "Order identifier"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_orders')
+              field: order_id
+      - name: order_item_id
+        description: "Sequential item number within the order"
+        tests:
+          - not_null
+      - name: product_id
+        description: "Product identifier"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_products')
+              field: product_id
+      - name: seller_id
+        description: "Seller identifier"
+        tests:
+          - not_null
+          - relationships:
+              to: ref('stg_sellers')
+              field: seller_id
+      - name: seller_city
+        description: "Seller's city"
+        tests:
+          - not_null
+      - name: seller_state
+        description: "Seller's state"
+        tests:
+          - not_null
+      - name: seller_zip_code
+        description: "Seller's zip code"
+        tests:
+          - not_null
+      - name: item_price
+        description: "Item price in BRL"
+        tests:
+          - not_null
+      - name: item_freight_value
+        description: "Freight cost for this item"
+        tests:
+          - not_null
+      - name: item_total_value
+        description: "Total value (price + freight)"
+        tests:
+          - not_null
+      - name: shipping_limit_date
+        description: "Deadline for seller to ship"
+        tests:
+          - not_null
+      - name: weight_category
+        description: "Weight category: light, medium, heavy"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['light', 'medium', 'heavy']
+      - name: volume_category
+        description: "Volume category: small, medium, large"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['small', 'medium', 'large']
+      - name: price_category
+        description: "Price category: budget, mid-range, premium"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['budget', 'mid-range', 'premium']
+
+  - name: int_customer_orders
+    description: "Customer-level aggregations with RFM segmentation"
+    config:
+      tags: ['intermediate', 'customers']
+    columns:
+      - name: customer_id
+        description: "Customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: customer_unique_id
+        description: "Unique customer identifier"
+        tests:
+          - not_null
+      - name: customer_city
+        description: "Customer's city"
+        tests:
+          - not_null
+      - name: customer_state
+        description: "Customer's state"
+        tests:
+          - not_null
+      - name: customer_zip_code
+        description: "Customer's zip code"
+        tests:
+          - not_null
+      - name: total_orders
+        description: "Total number of orders"
+        tests:
+          - not_null
+      - name: delivered_orders
+        description: "Number of delivered orders"
+        tests:
+          - not_null
+      - name: canceled_orders
+        description: "Number of canceled orders"
+        tests:
+          - not_null
+      - name: lifetime_value
+        description: "Total amount spent by customer"
+        tests:
+          - not_null
+      - name: avg_order_value
+        description: "Average order value"
+        tests:
+          - not_null
+      - name: first_order_date
+        description: "Date of first order"
+        tests:
+          - not_null
+      - name: last_order_date
+        description: "Date of most recent order"
+        tests:
+          - not_null
+      - name: customer_lifespan_days
+        description: "Days between first and last order"
+        tests:
+          - not_null
+      - name: days_since_last_order
+        description: "Days since last order"
+        tests:
+          - not_null
+      - name: orders_per_month
+        description: "Average orders per month"
+        tests:
+          - not_null
+      - name: customer_status
+        description: "Status based on recency"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Active', 'At Risk', 'Dormant', 'Lost']
+      - name: customer_frequency_segment
+        description: "Segmentation based on frequency"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['One-time', 'Second-time', 'Repeat']
+      - name: customer_value_segment
+        description: "Segmentation based on lifetime value"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Low Value', 'Medium Value', 'High Value']
+      - name: customer_tier
+        description: "Overall customer tier"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Bronze', 'Silver', 'Gold', 'VIP']
