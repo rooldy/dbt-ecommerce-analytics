@@ -1,0 +1,211 @@
+version: 2
+
+models:
+  - name: mart_sales_daily
+    description: "Daily sales aggregations with moving averages and YoY comparisons - INCREMENTAL"
+    config:
+      tags: ['marts', 'analytics', 'sales']
+    columns:
+      - name: date_key
+        description: "Date key (YYYYMMDD format) - unique key for incremental"
+        tests:
+          - unique
+          - not_null
+      - name: full_date
+        description: "Full date value"
+        tests:
+          - not_null
+      - name: orders
+        description: "Number of orders placed on this date"
+        tests:
+          - not_null
+      - name: revenue
+        description: "Total revenue for the day"
+        tests:
+          - not_null
+      - name: avg_order_value
+        description: "Average order value"
+      - name: on_time_rate
+        description: "Percentage of on-time deliveries"
+      - name: revenue_7d_ma
+        description: "7-day moving average of revenue"
+
+  - name: mart_customer_lifetime_value
+    description: "Customer lifetime value predictions and segmentation"
+    config:
+      tags: ['marts', 'analytics', 'customers']
+    columns:
+      - name: customer_id
+        description: "Customer identifier"
+        tests:
+          - unique
+          - not_null
+      - name: historical_ltv
+        description: "Actual lifetime value to date"
+        tests:
+          - not_null
+      - name: predicted_clv_12m
+        description: "Predicted customer lifetime value over next 12 months"
+        tests:
+          - not_null
+      - name: engagement_score
+        description: "Customer engagement score (0-100)"
+      - name: clv_tier
+        description: "CLV tier classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Very High', 'High', 'Medium', 'Low', 'Very Low']
+      - name: churn_risk
+        description: "Churn risk level"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Very High', 'High', 'Medium', 'Low-Medium', 'Low']
+      - name: marketing_priority
+        description: "Marketing action priority"
+        tests:
+          - not_null
+
+  - name: mart_product_performance
+    description: "Product performance metrics with reviews and rankings"
+    config:
+      tags: ['marts', 'analytics', 'products']
+    columns:
+      - name: product_id
+        description: "Product identifier"
+        tests:
+          - unique
+          - not_null
+      - name: category_name_en
+        description: "Product category in English"
+        #tests:
+         # - not_null
+      - name: revenue
+        description: "Product category in English (NULL if untranslated)"
+        tests:
+          - not_null
+      - name: units_sold
+        description: "Total units sold"
+        tests:
+          - not_null
+      - name: avg_rating
+        description: "Average customer rating"
+      - name: satisfaction_rate
+        description: "Percentage of positive reviews (4-5 stars)"
+      - name: product_health_score
+        description: "Overall product health score (0-100)"
+      - name: product_recommendation
+        description: "Recommended action for product"
+        tests:
+          - not_null
+
+  - name: mart_delivery_kpis
+    description: "Delivery performance KPIs by customer state and seller region"
+    config:
+      tags: ['marts', 'analytics', 'operations']
+    columns:
+      - name: customer_state
+        description: "Customer state"
+        tests:
+          - not_null
+      - name: seller_region
+        description: "Seller region"
+        tests:
+          - not_null
+      - name: total_deliveries
+        description: "Number of completed deliveries"
+        tests:
+          - not_null
+      - name: avg_delivery_days
+        description: "Average delivery time in days"
+      - name: on_time_rate
+        description: "Percentage of on-time deliveries"
+      - name: reliability_score
+        description: "Overall reliability score (0-100)"
+      - name: performance_tier
+        description: "Performance classification"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Excellent', 'Good', 'Fair', 'Needs Improvement']
+      - name: recommendation
+        description: "Recommended action"
+        tests:
+          - not_null
+
+  - name: mart_customer_cohorts
+    description: "Cohort analysis with retention rates and revenue tracking"
+    config:
+      tags: ['marts', 'analytics', 'customers', 'cohorts']
+    columns:
+      - name: cohort_month
+        description: "Month when cohort was acquired"
+        tests:
+          - not_null
+      - name: months_since_cohort
+        description: "Months since cohort acquisition"
+        tests:
+          - not_null
+      - name: cohort_size
+        description: "Total customers in cohort"
+        tests:
+          - not_null
+      - name: active_customers
+        description: "Active customers in this period"
+        tests:
+          - not_null
+      - name: retention_rate
+        description: "Retention rate as percentage"
+      - name: cohort_revenue
+        description: "Revenue generated in this period"
+        tests:
+          - not_null
+      - name: cumulative_revenue_per_customer
+        description: "Cumulative revenue per customer"
+      - name: cohort_health
+        description: "Cohort health status"
+        tests:
+          - not_null
+
+  - name: mart_sales_by_category
+    description: "Sales performance by product category with growth metrics"
+    config:
+      tags: ['marts', 'analytics', 'products', 'sales']
+    columns:
+      - name: category_name_en
+        description: "Product category in English"
+        tests:
+          - not_null
+      - name: year
+        description: "Year"
+        tests:
+          - not_null
+      - name: month
+        description: "Month"
+        tests:
+          - not_null
+      - name: total_revenue
+        description: "Total revenue for category in period"
+        tests:
+          - not_null
+      - name: units_sold
+        description: "Units sold"
+        tests:
+          - not_null
+      - name: mom_revenue_growth
+        description: "Month-over-month revenue growth percentage"
+      - name: yoy_revenue_growth
+        description: "Year-over-year revenue growth percentage"
+      - name: share_of_monthly_revenue
+        description: "Category's share of total monthly revenue"
+      - name: performance_tier
+        description: "Performance tier"
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Top Tier', 'High Performer', 'Mid Performer', 'Low Performer']
+      - name: strategic_category
+        description: "Strategic classification for decision making"
+        tests:
+          - not_null
