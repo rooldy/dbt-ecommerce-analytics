@@ -30,7 +30,7 @@ with daily_orders as (
         sum(f.items_count) as items_sold,
         
         -- Revenue metrics
-        sum(f.total_payment_value) as revenue,
+        sum(f.items_total_price) as revenue,
         avg(f.total_payment_value) as avg_order_value,
         min(f.total_payment_value) as min_order_value,
         max(f.total_payment_value) as max_order_value,
@@ -53,6 +53,7 @@ with daily_orders as (
         
     from {{ ref('fct_orders') }} f
     join {{ ref('dim_date') }} d on f.order_date_key = d.date_key
+    where f.items_count > 0 
     
     {% if is_incremental() %}
         -- Only process new dates
