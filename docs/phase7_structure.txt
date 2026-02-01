@@ -1,0 +1,117 @@
+# Phase 7 - Structure du Projet Streamlit
+
+## 📁 Arborescence Complète
+
+```
+dbt-ecommerce-analytics/
+├── dbt_ecommerce/                    # Votre projet DBT existant
+│   └── ...
+│
+└── streamlit-dashboards/             # 🆕 NOUVEAU - Phase 7
+    ├── .streamlit/
+    │   └── config.toml              # Configuration Streamlit
+    │
+    ├── pages/                        # Dashboards (navigation auto)
+    │   ├── 1_📊_Executive_Summary.py
+    │   ├── 2_💰_Sales_Performance.py
+    │   ├── 3_👥_Customer_Analytics.py
+    │   ├── 4_📦_Product_Intelligence.py
+    │   ├── 5_🔄_Cohort_Retention.py
+    │   └── 6_🎯_RFM_Segmentation.py
+    │
+    ├── utils/                        # Utilitaires
+    │   ├── __init__.py
+    │   ├── snowflake_connector.py   # Connexion DB
+    │   ├── data_loader.py           # Queries & cache
+    │   ├── styling.py               # CSS custom
+    │   ├── metrics.py               # KPI calculations
+    │   └── charts.py                # Plotly helpers
+    │
+    ├── assets/                       # Resources
+    │   ├── logo.png
+    │   └── styles.css
+    │
+    ├── Home.py                       # Page d'accueil (landing)
+    ├── requirements.txt              # Dependencies Python
+    ├── .env.example                  # Template credentials
+    ├── .gitignore                    # Ignore .env
+    └── README.md                     # Documentation
+```
+
+## 🔧 Commandes de Création
+
+```bash
+# Depuis dbt-ecommerce-analytics/
+
+# Créer la structure
+mkdir -p streamlit-dashboards/.streamlit
+mkdir -p streamlit-dashboards/pages
+mkdir -p streamlit-dashboards/utils
+mkdir -p streamlit-dashboards/assets
+
+# Créer les fichiers de base
+cd streamlit-dashboards
+
+touch Home.py
+touch requirements.txt
+touch .env.example
+touch .gitignore
+touch README.md
+
+touch .streamlit/config.toml
+
+touch utils/__init__.py
+touch utils/snowflake_connector.py
+touch utils/data_loader.py
+touch utils/styling.py
+touch utils/metrics.py
+touch utils/charts.py
+
+touch pages/1_📊_Executive_Summary.py
+touch pages/2_💰_Sales_Performance.py
+touch pages/3_👥_Customer_Analytics.py
+touch pages/4_📦_Product_Intelligence.py
+touch pages/5_🔄_Cohort_Retention.py
+touch pages/6_🎯_RFM_Segmentation.py
+```
+
+## 📦 Installation des Dépendances
+
+```bash
+# Activer votre environnement virtuel (si pas déjà fait)
+# conda activate dbt_env
+# OU
+# source venv/bin/activate
+
+# Installer Streamlit et dépendances
+pip install streamlit
+pip install snowflake-connector-python
+pip install plotly
+pip install pandas
+pip install python-dotenv
+
+# Générer requirements.txt
+pip freeze > requirements.txt
+```
+
+## ✅ Vérification
+
+```bash
+# Tester que Streamlit fonctionne
+streamlit hello
+
+# Devrait ouvrir http://localhost:8501 avec demo Streamlit
+```
+
+---
+
+## 🎯 Prochaines Étapes
+
+Une fois cette structure créée :
+
+1. ✅ Copier le contenu des artifacts dans chaque fichier
+2. ✅ Configurer vos credentials Snowflake (.env)
+3. ✅ Tester la connexion
+4. ✅ Lancer le premier dashboard
+
+**Prêt pour les fichiers de code ?** 🚀
