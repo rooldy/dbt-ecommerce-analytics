@@ -222,7 +222,7 @@ class DataLoader:
         sql = """
         SELECT *
         FROM marts_analytics.mart_customer_cohorts
-        ORDER BY cohort_month, months_since_first_order
+        ORDER BY cohort_month, months_since_cohort
         """
         return query_snowflake(sql)
     
@@ -234,9 +234,9 @@ class DataLoader:
         SELECT 
             cohort_month,
             cohort_size,
-            SUM(revenue) as total_revenue,
+            SUM(cohort_revenue) as total_revenue,
             AVG(retention_rate) as avg_retention,
-            MAX(months_since_first_order) as cohort_age_months
+            MAX(months_since_cohort) as cohort_age_months
         FROM marts_analytics.mart_customer_cohorts
         GROUP BY 1, 2
         ORDER BY 1

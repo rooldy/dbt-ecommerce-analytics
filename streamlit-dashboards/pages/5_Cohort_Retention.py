@@ -48,22 +48,18 @@ if not cohort_summary_df.empty:
     col1, col2, col3, col4 = st.columns(4)
 
     with col1:
-        # Nombre total de cohortes
         total_cohorts = cohort_summary_df['COHORT_MONTH'].nunique()
         st.metric("Total Cohorts", format_number(total_cohorts, 0))
 
     with col2:
-        # Nombre total de clients dans toutes les cohortes
         total_customers = cohort_summary_df['COHORT_SIZE'].sum()
         st.metric("Total Customers", format_number(total_customers, 0))
 
     with col3:
-        # Revenue total généré par les cohortes
         total_revenue = cohort_summary_df['TOTAL_REVENUE'].sum()
         st.metric("Total Revenue", format_currency(total_revenue, 0))
 
     with col4:
-        # Taux de retention moyen sur toutes les cohortes
         avg_retention = cohort_summary_df['AVG_RETENTION'].mean()
         st.metric("Avg Retention Rate", f"{avg_retention:.1f}%")
 
@@ -76,7 +72,7 @@ if not cohort_df.empty:
     # Pivotez les données pour créer une matrix cohorte x mois
     retention_pivot = cohort_df.pivot_table(
         index='COHORT_MONTH',
-        columns='MONTHS_SINCE_FIRST_ORDER',
+        columns='MONTHS_SINCE_COHORT',
         values='RETENTION_RATE'
     )
 
@@ -86,7 +82,7 @@ if not cohort_df.empty:
         title='Cohort Retention Heatmap',
         color_continuous_scale='RdYlGn',
         labels={
-            'x': 'Months Since First Order',
+            'x': 'Months Since Cohort Start',
             'y': 'Cohort',
             'color': 'Retention (%)'
         }
@@ -106,12 +102,12 @@ if not cohort_df.empty:
     # Chaque ligne représente une cohorte différente
     fig_curves = px.line(
         cohort_df,
-        x='MONTHS_SINCE_FIRST_ORDER',
+        x='MONTHS_SINCE_COHORT',
         y='RETENTION_RATE',
         color='COHORT_MONTH',
         title='Retention Curves Over Time',
         labels={
-            'MONTHS_SINCE_FIRST_ORDER': 'Months Since First Order',
+            'MONTHS_SINCE_COHORT': 'Months Since Cohort Start',
             'RETENTION_RATE': 'Retention Rate (%)',
             'COHORT_MONTH': 'Cohort'
         }
@@ -195,8 +191,10 @@ st.subheader("Key Insights")
 col1, col2, col3 = st.columns(3)
 
 with col1:
-    # Meilleure cohorte par retention
-    if not cohort_summary_df.empty:
+    # Meilleure cohorte par retention - Utiliser les données NON formatées
+    if not cohort_summary_df.empty and 'AVG_RETENTION' in cohort_summary_df.columns:
+        # Convertir en numeric au cas où
+        cohort_summary_df['AVG_RETENTION'] = pd.to_numeric(cohort_summary_df['AVG_RETENTION'], errors='coerce')
         best_cohort = cohort_summary_df.nlargest(1, 'AVG_RETENTION').iloc[0]
         st.success(f"""
         **Best Retention Cohort**
@@ -206,10 +204,12 @@ with col1:
         
         This cohort shows the strongest customer loyalty.
         """)
+    else:
+        st.info("No retention data available")
 
 with col2:
     # Plus grande cohorte
-    if not cohort_summary_df.empty:
+    if not cohort_summary_df.empty and 'COHORT_SIZE' in cohort_summary_df.columns:
         largest_cohort = cohort_summary_df.nlargest(1, 'COHORT_SIZE').iloc[0]
         st.info(f"""
         **Largest Cohort**
@@ -219,10 +219,13 @@ with col2:
         
         Highest acquisition period in the dataset.
         """)
+    else:
+        st.info("No cohort size data available")
 
 with col3:
     # Cohorte avec le plus de revenue
-    if not cohort_summary_df.empty:
+    if not cohort_summary_df.empty and 'TOTAL_REVENUE' in cohort_summary_df.columns:
+        cohort_summary_df['TOTAL_REVENUE'] = pd.to_numeric(cohort_summary_df['TOTAL_REVENUE'], errors='coerce')
         best_revenue = cohort_summary_df.nlargest(1, 'TOTAL_REVENUE').iloc[0]
         st.warning(f"""
         **Highest Revenue Cohort**
@@ -232,7 +235,9 @@ with col3:
         
         Most valuable customer group acquired.
         """)
-
+    else:
+        st.info("No revenue data available")
+        
 # Footer
 st.markdown("---")
 st.caption("Data refreshed from Snowflake | Last update: " + datetime.now().strftime("%Y-%m-%d %H:%M:%S"))

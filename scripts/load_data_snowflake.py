@@ -13,8 +13,8 @@ load_dotenv()
 
 # Configuration Snowflake
 SNOWFLAKE_CONFIG = {
-    'account': 'PQHYLYQ-WA35386',
-    'user': 'ROOLDY2026',
+    'account': 'XSJNJQP-RX52340',
+    'user': 'ROOLDY226',
     'password': os.getenv('SNOWFLAKE_PASSWORD', 'VOTRE_MOT_DE_PASSE'),
     'warehouse': 'DBT_WH',
     'database': 'DBT_ECOMMERCE',
